@@ -1,6 +1,6 @@
 # pysana
 
-Python wrapper for the [Asana v1 RESTful API](http://developer.asana.com/documentation/)
+Python wrapper for the [Asana v1 RESTful API](http://developer.asana.com/documentation/).
 
 Note: This library is relatively new and subject to change. If you have ideas on how to improve it, please get in touch with me. 
 
@@ -9,20 +9,22 @@ Note: This library is relatively new and subject to change. If you have ideas on
 ```python
 from asana import Asana
 api = Asana('123124.abcDeFg1234KlMNopQ56')
-me = api.User()
-all_workspaces = api.workspaces
+primary_workspace = api.find_workspace('Personal Projects')
+my_tasks = primary_workspace.find_tasks(api.User())
 ```
 
 ## Documentation
 
 This wrapper implementation takes an object oriented approach. It closely maps the resources Asana provides (workspaces, users, tags, etc..) into objects. 
 
-### Creating the API Object
+### Creating the API Object:
 
-All calls to the API require instantiating an Asana object. An Asana object is tied to a single user's API key. You can create an Asana object with a configuration file that looks like the following:
+**All calls to the API require instantiating an Asana object.** An Asana object is tied to a single user's API key. You can create an Asana object with a configuration file that looks like the following:
+```
 	[Asana Configuration]
 	api_key = 123124.abcDeFg1234KlMNopQ56
 	debug = false
+```
 
 Then you can pass in the file location:
 
@@ -38,7 +40,7 @@ from asana import Asana
 api = Asana('123124.abcDeFg1234KlMNopQ56', debug=False)
 ```
 
-### Working with AsanaResource Objects
+### Working with AsanaResource Objects:
 
 The following AsanaResource's exist:
 * User
@@ -83,6 +85,26 @@ hotels = vacation.find_tag('hotels')
 remaining_hotel_tasks = [t for t in hotels.tasks if t.assignee_status == 'today']
 ```
 
+#### User:
+<table>
+  <tr>
+    <th>Property</th><th>Type</th><th>Settable?</th>
+  </tr>
+  <tr>
+    <td>id</td><td>int</td><td>--</td>
+  </tr>
+  <tr>
+    <td>name</td><td>str</td><td>--</td>
+  </tr>
+  <tr>
+    <td>email</td><td>str</td><td>--</td>
+  </tr>
+  <tr>
+    <td>workspaces</td><td>list(Workspace)</td><td>--</td>
+  </tr>
+</table>
+
+
 ```python
 # Create users that we can then interact with
 myself = api.User('me') 
@@ -100,6 +122,7 @@ shared_workspaces = [mw.name for mw in my_workspaces.workspaces for dw in dougs_
 * Test coverage
 
 ## Contributing
+
 * Fork 
 * Create a branch
 * Commit and push to the newly created branch
