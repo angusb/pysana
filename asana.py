@@ -197,7 +197,7 @@ class Asana(AsanaClient):
         - Task
         - Story
 
-        Possible AsanaResources (list of a particular AsanaResource) to return:
+        Possible lists of AsanaResources to return:
         - users
         - workspaces
         - projects
