@@ -21,9 +21,9 @@ This wrapper implementation takes an object oriented approach. It closely maps t
 
 **All calls to the API require instantiating an Asana object.** An Asana object is tied to a single user's API key. You can create an Asana object with a configuration file that looks like the following:
 ```
-	[Asana Configuration]
-	api_key = 123124.abcDeFg1234KlMNopQ56
-	debug = false
+    [Asana Configuration]
+    api_key = 123124.abcDeFg1234KlMNopQ56
+    debug = false
 ```
 
 Then you can pass in the file location:
@@ -52,17 +52,7 @@ The following AsanaResource's exist:
 
 Once you have an Asana object (api, above) you can use it to instantiate any of the above AsanaResources. Instantiating an Asana object does not *necessarily* imply that a new resource is created (e.g. Asana's API doesn't allow you to create new users or workspaces). 
 
-Every Asana resouce has an id. It is very easy to create an object out of it once you have the ID.
-
-```python
-myself = api.User('135161039')
-red_tag = api.Tag('395026900')
-primary_workspace = api.Workspace('598703954')
-due_today_tag = api.Tag('489694816')
-# etc...
-```
-
-This method to create Asana Resource objects, however, is unlikely to be used. Here's more likely scenarios:
+Though you can create Asana Resource objects with IDs (see below), the following is more likely:
 
 ```python
 ## Self contained examples:
@@ -83,6 +73,46 @@ subtask = task.add_subtask('Install Micrsoft Word')
 vacation = api.find_workspace('Vacation Planning')
 hotels = vacation.find_tag('hotels')
 remaining_hotel_tasks = [t for t in hotels.tasks if t.assignee_status == 'today']
+```
+
+#### Asana:
+
+Check the source code to determine what parameters each constructor can accept.
+
+**Note:** every Asana object has an ID. It's very easy to use the id to create an AsanaResource object.
+
+Constructors:
+```python
+
+w_id = '13315135'
+
+api_user = api.User()
+other_user = api.User('2966100')
+
+existing_workspace = api.Workspace(w_id)
+
+existing_tag = api.Tag('23596722')
+new_tag = api.Tag(workspace_id=w_id, name='important', notes='code red')
+
+existing_project = api.Project('55966708')
+new_project = api.Project(workspace_id=w_id, name='Homework')
+
+existing_task = api.Task('32511342')
+new_task = api.Task(workspace_id=w_id,
+                    name='Write Report',
+                    assignee_status='later',
+                    notes='Write nutrition report and Deliver to Bob',
+                    assignee=other_user.id)
+
+existing_story = api.Story('55679803')
+```
+
+Methods:
+```python
+
+tom = api.find_user('Tom Foolery')
+important_tag = api.find_tag('Code Red')
+personal = api.find_workspace('Personal Projects')
 ```
 
 #### User:
@@ -119,10 +149,11 @@ shared_workspaces = [mw.name for mw in my_workspaces.workspaces for dw in dougs_
 
 ## Todo
 * Add to pip
+* Handle TODO's in code
 * Test coverage
 
 ## Contributing
-
+* Send me an email or create an Issue of what you want to do
 * Fork 
 * Create a branch
 * Commit and push to the newly created branch
