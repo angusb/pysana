@@ -150,6 +150,17 @@ class AsanaClient(object):
         self._check_http_status(r)
         return self._handle_response(r)
 
+# Helper function. TODO: make into a mixin?
+def find_user(users, name=None, email=None):
+    if name and email or (not email and not name):
+        raise AsanaError('find_user requires a name or email, not both.')
+
+    if name:
+        users = filter(lambda x: x.name == name, users)
+    elif email:
+        users = filter(lambda x: x.email == email, users)
+
+    return users[0] if users else []
 
 class Asana(AsanaClient):
     def __init__(self, api_key=None, config_file='./asana.cfg', debug=False):
@@ -225,36 +236,36 @@ class Asana(AsanaClient):
 
         raise AttributeError("'Asana' instance has no attribute '%s'" % key)
 
-    def find_workspace(name, first_match=True):
-        """Returns a workspace with the given name. If first_match
-        is False, return all workspaces with name (Asana doesn't enforce
-        unique workspace names).
+    def find_user(self, name=None, email=None):
+        """Returns a user with the given name or email. Only one of these
+        can be specified.
 
         Kwargs:
-            first_match (bool): whether to return all matches or the first one
+            name (str)
+            email (str)
+        """
+        return find_user(self.users, name, email)
+
+    def find_workspace(self, name):
+        """Returns a workspace with the given name.
+
+        Args:
+            name (str)
         """
         workspaces = filter(lambda x: x.name == name, self.workspaces)
-        if workspaces and first_match:
-            return workspaces[0]
+        return workspaces[0] if workspaces else []
 
-        return workspaces
+    def find_tag(self, name):
+        """Returns a tag with the given name.
 
-    def find_tag(name, first_match=True):
-        """Returns a tags with the given name. If first_match
-        is False, return all tags with name (Asana doesn't enforce
-        unique tag names).
-
-        Kwargs:
-            first_match (bool): whether to return all matches or the first one
+        Args:
+            name (str)
         """
         tags = filter(lambda x: x.name == name, self.tags)
-        if tags and first_match:
-            return tags[0]
-
-        return tags
-
+        return tags[0] if tags else []
 
 class AsanaResource(object):
+    # Todo: make abstract
     def _utcstr_to_datetime(self, timestamp):
         """Convert a UTC formatted string to a datetime object.
 
@@ -580,19 +591,7 @@ class Workspace(AsanaResource):
         return Task(self.api, workspace_id=self._id, kwargs=kwargs)
 
     def find_user(self, name=None, email=None, first_match=True):
-        if name and email or (not email and not name):
-            raise AsanaError('find_user requires a name or email, not both.')
-
-        users = self.users
-        if name:
-            users = filter(lambda x: x.name == name, users)
-            if first_match and users:
-                return users[0]
-
-            return users
-
-        users = filter(lambda x: x.email == email, users)
-        return users[0] if users else []
+        return find_user(self.users, name, email)
 
     # TODO redundant to searching self.projects? bad implementation?
     def find_projects(self, archived=False):
